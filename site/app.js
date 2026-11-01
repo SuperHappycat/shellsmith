@@ -75,6 +75,7 @@
       <div class="big">${passed}<span style="color:var(--ink-3);font-size:.45em"> / ${stages.length} stages</span></div>
       <p>You write the code; the tester types into your shell through a real terminal and checks what comes back.
       Every <code>./smith submit</code> pushes to GitHub, the tests run there, and this page updates.</p>
+      ${results?.build_error ? `<div class="note err"><strong>The last submission didn't compile</strong><pre>${esc(results.build_error)}</pre></div>` : ""}
       ${cur ? `<p><strong>Up next:</strong> stage ${cur.number} · ${tt(cur.title)}</p>
       <a class="cta" href="#/stage/${cur.slug}">Open stage ${cur.number} →</a>` : ""}
     </div>`;
@@ -97,6 +98,7 @@
       ${s.html}
       ${st === "locked" ? '<div class="note locked-note">You can read ahead, but the tester will reach this stage only after the earlier ones pass.</div>' : ""}
       ${st === "failed" && r ? `<div class="note err"><strong>Last run failed here</strong><pre>${esc(r.error)}</pre></div>` : ""}
+      ${results?.build_error && st === "current" ? `<div class="note err"><strong>Your shell didn't compile, so no tests ran</strong><pre>${esc(results.build_error)}</pre></div>` : ""}
       <div class="nav">${prev ? `<a href="#/stage/${prev.slug}">← ${tt(prev.title)}</a>` : "<span></span>"}
         ${next ? `<a href="#/stage/${next.slug}">${tt(next.title)} →</a>` : ""}</div>`;
     renderSide(slug);

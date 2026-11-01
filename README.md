@@ -58,17 +58,21 @@ random words of a run; the seed is printed after every run), `./smith status`, `
 `submit` uses the GitHub CLI when it's logged in (fastest, full log). Without it,
 it polls the public GitHub API and reads the results from your dashboard instead.
 
-## 3. Using another language
-
-The tester only ever runs `./your_shell.sh`. Change its last line to start your
-program (compile first if needed) and the whole course works the same:
+## 3. Pick your language
 
 ```sh
-exec "$(dirname "$0")/build/myshell" "$@"
+./smith language            # list: python (default), c, go, rust, javascript
+./smith language rust       # switch; your old app/ is backed up in .smith/
 ```
 
-If your language needs a compiler on GitHub's machines, add a setup step before
-**Run the tester** in `.github/workflows/smith.yml`.
+Each language comes with a starter in `app/`. Compiled languages have a `build.sh`
+that the tester runs once before the stages (also on GitHub), so a compile error
+shows up as a clear message instead of 43 failures.
+
+Any other language works too: the tester only ever runs `./your_shell.sh` (after
+`./build.sh`, if present). Point them at your program, and if GitHub's Ubuntu
+runner lacks your toolchain, add an install step before **Run the tester** in
+`.github/workflows/smith.yml`.
 
 ## Notes
 
@@ -87,7 +91,9 @@ If your language needs a compiler on GitHub's machines, add a setup step before
 
 | Path | What it is |
 |---|---|
-| `app/main.py` | **Your shell** (starter code) |
+| `app/` | **Your shell** (starter code; Python by default) |
+| `starters/` | Starter code for every language (`./smith language`) |
+| `build.sh` | Compile step for compiled languages (absent for Python/JS) |
 | `your_shell.sh` | How the tester starts your shell |
 | `smith` | The command-line companion |
 | `tester/` | The tests (`stages.py`) and PTY harness |

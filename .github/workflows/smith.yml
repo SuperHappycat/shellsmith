@@ -21,6 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Go, Rust (cargo) and Node.js are preinstalled on GitHub's Ubuntu runners.
+      # C needs the GNU readline headers for the line-editing stages.
+      - name: Install C readline headers
+        if: hashFiles('app/*.c') != ''
+        run: sudo apt-get install -y -qq libreadline-dev
+
       # Uses Ubuntu's own python3, which ships with GNU readline (needed for the TAB stages).
       - name: Run the tester
         env:

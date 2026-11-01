@@ -1,0 +1,8 @@
+[package]
+name = "shell"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# For TAB completion and history (stages 26+) you may want a line editor such as
+# rustyline. Add it here when you get there.
