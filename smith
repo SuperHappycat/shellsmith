@@ -440,6 +440,8 @@ def cmd_language(args):
             if os.path.exists(os.path.join(ROOT, f)):
                 shutil.copy2(os.path.join(ROOT, f), backup)
         print(dim(f"Your previous code is saved in {os.path.relpath(backup, ROOT)}/"))
+    if os.path.isdir(app) and not os.listdir(app):
+        os.rmdir(app)
     shutil.copytree(os.path.join(src, "app"), app)
     shutil.copy2(os.path.join(src, "your_shell.sh"), os.path.join(ROOT, "your_shell.sh"))
     build = os.path.join(ROOT, "build.sh")
