@@ -4,7 +4,7 @@ const readline = require("node:readline");
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true });
 
-// Stage 1: show the prompt. Uncomment the next two lines, then run ./smith test
+// Stage 1: show the prompt. Uncomment the next two lines, then run: shellsmith test
 // rl.setPrompt("$ ");
 // rl.prompt();
 

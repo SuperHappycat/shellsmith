@@ -1,7 +1,4 @@
-.smith/
-_site/
-results.json
 __pycache__/
 *.pyc
 .DS_Store
-app/target/
+.smith/

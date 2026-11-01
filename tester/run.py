@@ -50,14 +50,14 @@ def load_course():
     return stages
 
 
-def run_build():
+def run_build(solution):
     """Compile the learner's shell once (if the chosen language has a build.sh)."""
-    script = os.path.join(ROOT, "build.sh")
+    script = os.path.join(solution, "build.sh")
     if not os.path.exists(script):
         return None
     print("Building your shell (build.sh)…", flush=True)
     t0 = time.monotonic()
-    r = subprocess.run(["sh", script], cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    r = subprocess.run(["sh", script], cwd=solution, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if r.returncode != 0:
         return (r.stdout or "").strip()[-4000:] or f"build.sh exited with status {r.returncode}"
     print(f"Built in {time.monotonic() - t0:.1f}s\n", flush=True)
@@ -118,7 +118,8 @@ def run_all(todo, program, seed, jobs, color, quiet):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--program", default=os.path.join(ROOT, "your_shell.sh"))
+    p.add_argument("--solution", default=os.getcwd(), help="folder holding your_shell.sh (default: here)")
+    p.add_argument("--program", help="override: the executable to test (default: SOLUTION/your_shell.sh)")
     p.add_argument("--only", help="run just this stage (slug or number)")
     p.add_argument("--json", help="write results to this file")
     p.add_argument("--seed", default=None, help="fix the random words (reproduce a run)")
@@ -126,7 +127,9 @@ def main():
     a = p.parse_args()
 
     seed = a.seed or str(random.randrange(10**6))
-    color = sys.stdout.isatty() and os.environ.get("NO_COLOR") is None
+    color = os.environ.get("SMITH_COLOR") == "1" or (sys.stdout.isatty() and os.environ.get("NO_COLOR") is None)
+    a.solution = os.path.abspath(a.solution)
+    a.program = os.path.abspath(a.program or os.path.join(a.solution, "your_shell.sh"))
     quiet = os.environ.get("SMITH_QUIET") == "1"
 
     course = load_course()
@@ -142,7 +145,7 @@ def main():
         if not todo:
             sys.exit(f"No stage called {a.only!r}")
 
-    build_error = run_build()
+    build_error = run_build(a.solution)
     if build_error:
         print(build_error)
         print("\nYour shell did not compile, so no stages were run.")
@@ -179,6 +182,8 @@ def main():
                 "results": results,
             }, f, indent=1)
 
+    if os.environ.get("SMITH_HOOK") == "1":   # the git hook prints its own summary
+        sys.exit(0)
     tail = f"  [{elapsed:.1f}s, seed {seed}]"
     if a.only:
         print(("Passed." if results[0]["passed"] else "Failed.") + tail)
@@ -189,7 +194,7 @@ def main():
     cur = course[len(passed)]
     print(f"Stopped at stage {cur['number']}: {cur['title'].replace('`', '')}  "
           f"({len(passed)}/{len(course)} done)" + tail)
-    print("Read the instructions with:  ./smith stage")
+    print("Read the instructions with:  shellsmith stage")
     sys.exit(1)
 
 

@@ -1,110 +1,139 @@
-# Shellsmith — build your own shell
+# Shellsmith: build your own shell
 
-Build a working Unix shell from an empty file, one tested stage at a time.
-43 stages in 9 chapters: a REPL, builtins, running programs, `cd`, quoting,
-environment variables, redirection, TAB completion, pipelines, `;`/`&&`/`||`
-lists, and history that survives restarts.
+Build a working Unix shell from an empty file, one tested stage at a time, entirely
+from your terminal. 43 stages in 9 chapters: a prompt and REPL, builtins, running
+programs, `cd`, quoting, environment variables, redirection, TAB completion,
+pipelines, `;` / `&&` / `||`, and history that survives restarts.
 
-Your code lives in **your GitHub repo**. Each `./smith submit` pushes it,
-GitHub Actions runs the tester, the result streams back to your terminal, and
-your progress dashboard (GitHub Pages) updates.
+You get a repository, clone it, write code, and `git push`. Every push runs the
+tests and the results come back right in the push output:
 
 ```
- your terminal                     GitHub (your repo)
- ─────────────                     ──────────────────
- ./smith test   ──runs locally──▶  (nothing leaves your machine)
- ./smith submit ──git push──────▶  Actions: tester runs your shell
-              ◀──live status + log─┘        │
-                                            ▼
-                                   Pages: https://<you>.github.io/<repo>/
+$ git push
+remote: ────────────────────────────────────────────────────────────
+remote: Shellsmith: testing 4f2c9e1
+remote: [stage 1] Show a prompt
+remote: [stage 1] ✔ Saw the prompt "$ "
+remote: [stage 1] ✔ Stage passed
+remote: [stage 2] Complain about unknown commands
+remote: [stage 2] Typing: lotus_499
+remote:   [your shell] $ lotus_499
+remote: [stage 2] ✘ Your shell exited (code 0) while I was waiting for "lotus_499: command not found".
+remote:
+remote:   █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  1/43 stages
+remote:   ✔ 1 new stage passed. Nice work!
+remote:   Up next: stage 2 · Complain about unknown commands
+remote:   Read the full stage:  shellsmith stage
 ```
 
-## 1. One-time setup (≈3 minutes)
+Nothing runs on GitHub or any website. The "server" you push to is a git repository
+on your own computer, with a hook that runs the tester.
 
-> **Easiest:** open your dashboard and click **Start here**. It walks you through three ways
-> to work, with copy buttons: **Terminal** (macOS / Windows via WSL / Linux),
-> **Desktop apps** (GitHub Desktop + VS Code, no terminal needed) and
-> **Browser** (GitHub Codespaces, nothing to install).
+## Install
 
-Requirements: `git`, `python3` (3.9+), and the [GitHub CLI](https://cli.github.com).
+You need `git` and `python3` (3.9 or newer) on macOS or Linux. On Windows, use WSL:
+run `wsl --install` in PowerShell as administrator, restart, open **Ubuntu**, and do
+everything below in that window.
 
 ```sh
-gh auth login                 # once per computer
+git clone https://github.com/SuperHappycat/shellsmith
 cd shellsmith
-./smith setup                 # creates a public repo, enables the dashboard, pushes
+./install.sh
 ```
 
-`setup` prints your dashboard address, e.g. `https://yourname.github.io/shellsmith/`.
-The first deploy takes a minute or two.
+This puts the `shellsmith` command in `~/.local/bin`. If the installer says that folder
+isn't on your `PATH`, add the line it prints to `~/.bashrc` or `~/.zshrc` and open a
+new terminal. To update later: `git pull && ./install.sh`.
 
-<details><summary>Prefer to do it by hand?</summary>
-
-1. Create an empty **public** repo on github.com (Pages on private repos needs a paid plan).
-2. `git init -b main && git add -A && git commit -m start`
-3. `git remote add origin https://github.com/<you>/<repo>.git`
-4. On GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-5. `git push -u origin main`
-</details>
-
-## 2. The work loop
+## Start a challenge
 
 ```sh
-./smith stage        # read the current stage's instructions in the terminal
-# ...edit app/main.py...
-./smith test         # run the tests here (a few seconds, stages run in parallel)
-./smith test -w      # or: watch mode, re-runs whenever you save
-./smith submit       # commit + push; watch GitHub test it and print the log here
+shellsmith start python          # or: c, go, rust, javascript  (shellsmith languages)
 ```
 
-Other commands: `./smith stages` (list + progress), `./smith stage 12` (read any stage),
-`./smith test 12` (run one stage alone), `./smith test --seed 4711` (replay the exact
-random words of a run; the seed is printed after every run), `./smith status`, `./smith open` (dashboard).
-
-`submit` uses the GitHub CLI when it's logged in (fastest, full log). Without it,
-it polls the public GitHub API and reads the results from your dashboard instead.
-
-## 3. Pick your language
+It creates your challenge repository and tells you how to clone it:
 
 ```sh
-./smith language            # list: python (default), c, go, rust, javascript
-./smith language rust       # switch; your old app/ is backed up in .smith/
+git clone ~/.shellsmith/repos/shell-python.git shellsmith-shell-python
+cd shellsmith-shell-python
+shellsmith stage
 ```
 
-Each language comes with a starter in `app/`. Compiled languages have a `build.sh`
-that the tester runs once before the stages (also on GitHub), so a compile error
-shows up as a clear message instead of 43 failures.
+## The loop
 
-Any other language works too: the tester only ever runs `./your_shell.sh` (after
-`./build.sh`, if present). Point them at your program, and if GitHub's Ubuntu
-runner lacks your toolchain, add an install step before **Run the tester** in
-`.github/workflows/smith.yml`.
+```sh
+shellsmith stage        # read your current stage
+# ...write code in app/...
+shellsmith test         # run the tests on your working copy, nothing committed
+shellsmith test -w      # same, re-running every time you save
+shellsmith submit       # commit everything and push; tests run, results stream back
+```
 
-## Notes
+`shellsmith submit` is just `git add -A && git commit && git push`. Committing and
+pushing yourself works exactly the same.
 
-- **macOS + Python:** the Python that ships with macOS uses *libedit* instead of GNU
-  readline. TAB-completion stages may behave differently locally; the official run on
-  GitHub (Ubuntu) uses GNU readline. With libedit, bind TAB with
-  `readline.parse_and_bind("bind ^I rl_complete")`.
-- Tests stop at the first failing stage. Everything before it is "passed", that one
-  is your current stage, the rest are locked (you can still read them).
-- The tester types into your shell through a real pseudo-terminal, so prompts,
-  echo and line editing all count. Random words are used each run, so hard-coding
-  answers won't work.
-- Slow machine? `SMITH_TIMEOUT=8 ./smith test` (seconds per wait; default 4).
+| Command | What it does |
+|---|---|
+| `shellsmith start [lang]` | create a new challenge repository |
+| `shellsmith stage [N]` | instructions for your current stage, or stage N |
+| `shellsmith test [N] [-w]` | test locally: everything, only stage N, or watch mode |
+| `shellsmith test --seed S` | replay a run with exactly the same random words |
+| `shellsmith submit [message]` | commit + push + see the results |
+| `shellsmith status` | stages passed, current stage, recent submissions |
+| `shellsmith list` | all your challenges |
+| `shellsmith languages` | available languages and whether their tools are installed |
 
-## Layout
+## How grading works
+
+- The tester starts your shell inside a real pseudo-terminal and types into it like a
+  person, so prompts, echo, TAB and arrow keys all count.
+- Every run uses random words, so hard-coded answers don't pass.
+- Stages run in order and stop at the first failure. That stage is your current one.
+  Passing several stages in one push is fine.
+- Pushes are graded on exactly what you committed, not on your working folder.
+- If a stage that used to pass starts failing, the push output warns you.
+
+## Languages
+
+| Language | Needs | Starter |
+|---|---|---|
+| Python | `python3` | `app/main.py` |
+| C | a C compiler and GNU readline (`sudo apt install build-essential libreadline-dev`) | `app/main.c` |
+| Go | `go` | `app/main.go` |
+| Rust | `cargo` | `app/src/main.rs` |
+| JavaScript | `node` | `app/main.js` |
+
+Compiled languages have a `build.sh` that runs once before each test run, so a compile
+error shows up as one clear message. Any other language works if you point
+`your_shell.sh` (and `build.sh`) at it.
+
+**macOS note:** the Python and readline that ship with macOS use *libedit*, which
+handles TAB differently from GNU readline. If the completion stages (26–30) misbehave,
+bind TAB with `readline.parse_and_bind("bind ^I rl_complete")` on libedit, or use a
+Python built with GNU readline.
+
+## Where things live
 
 | Path | What it is |
 |---|---|
-| `app/` | **Your shell** (starter code; Python by default) |
-| `starters/` | Starter code for every language (`./smith language`) |
-| `build.sh` | Compile step for compiled languages (absent for Python/JS) |
-| `your_shell.sh` | How the tester starts your shell |
-| `smith` | The command-line companion |
-| `tester/` | The tests (`stages.py`) and PTY harness |
-| `course/stages/` | Stage instructions, one Markdown file each |
-| `site/` + `scripts/build_site.py` | The dashboard website |
-| `.github/workflows/smith.yml` | Runs tests on each push, deploys the dashboard |
+| `~/.shellsmith/engine/` | the installed tester, course and starters |
+| `~/.shellsmith/repos/*.git` | your challenge "servers" (bare git repos with the test hook) |
+| `~/.shellsmith/repos/*.git/shellsmith/progress.json` | your progress and submission history |
+| your clone | your code; push it anywhere else too (e.g. GitHub) as a backup |
+
+Uninstall: `rm -rf ~/.shellsmith ~/.local/bin/shellsmith` (this deletes your challenge
+servers; your clones stay).
+
+## This repository
+
+| Path | What it is |
+|---|---|
+| `install.sh` | installs the `shellsmith` command |
+| `shellsmith.py` | the command-line tool |
+| `hook.py` | the git hook that grades each push |
+| `tester/` | PTY harness (`harness.py`), stage tests (`stages.py`), runner (`run.py`) |
+| `course/stages/` | stage instructions, one Markdown file each |
+| `starters/` | starter code for each language |
 
 ## Licence
 

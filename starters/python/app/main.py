@@ -3,7 +3,7 @@ import sys
 
 def main():
     # Stage 1: print the prompt.
-    # Uncomment the next two lines to pass your first stage, then run ./smith test
+    # Uncomment the next two lines to pass your first stage, then run: shellsmith test
     # sys.stdout.write("$ ")
     # sys.stdout.flush()
 
