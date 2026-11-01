@@ -79,6 +79,9 @@ def summary(results_path):
     except (OSError, ValueError):
         print("## Shellsmith\n\nThe tester did not produce results. Check the *Run the tester* step log.")
         return
+    if data.get("build_error"):
+        print(f"## Shellsmith — build failed\n\nYour shell did not compile, so no stages ran.\n\n```\n{data['build_error']}\n```")
+        return
     passed = data.get("passed") or 0
     print(f"## Shellsmith — {passed}/{len(course)} stages\n")
     done = {r["slug"]: r for r in data["results"]}

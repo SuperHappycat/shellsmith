@@ -16,6 +16,7 @@ import json
 import multiprocessing as mp
 import os
 import random
+import subprocess
 import sys
 import time
 
@@ -47,6 +48,20 @@ def load_course():
         meta["body"] = body.strip()
         stages.append(meta)
     return stages
+
+
+def run_build():
+    """Compile the learner's shell once (if the chosen language has a build.sh)."""
+    script = os.path.join(ROOT, "build.sh")
+    if not os.path.exists(script):
+        return None
+    print("Building your shell (build.sh)…", flush=True)
+    t0 = time.monotonic()
+    r = subprocess.run(["sh", script], cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    if r.returncode != 0:
+        return (r.stdout or "").strip()[-4000:] or f"build.sh exited with status {r.returncode}"
+    print(f"Built in {time.monotonic() - t0:.1f}s\n", flush=True)
+    return None
 
 
 def run_stage(stage, program, seed):
@@ -126,6 +141,18 @@ def main():
         todo = [s for s in course if a.only in (s["slug"], str(s["number"]))]
         if not todo:
             sys.exit(f"No stage called {a.only!r}")
+
+    build_error = run_build()
+    if build_error:
+        print(build_error)
+        print("\nYour shell did not compile, so no stages were run.")
+        if a.json:
+            with open(a.json, "w") as f:
+                json.dump({"generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+                           "repository": os.environ.get("GITHUB_REPOSITORY"), "commit": os.environ.get("GITHUB_SHA"),
+                           "run_id": os.environ.get("GITHUB_RUN_ID"), "total": len(course), "passed": 0,
+                           "current": course[0]["slug"], "build_error": build_error, "results": []}, f, indent=1)
+        sys.exit(1)
 
     t0 = time.monotonic()
     results = run_all(todo, a.program, seed, a.jobs, color, quiet)

@@ -9,6 +9,7 @@
   ./smith stage [N]  show instructions for the current stage (or stage N)
   ./smith stages     list every stage and your progress
   ./smith status     local and remote progress at a glance
+  ./smith language   list languages; ./smith language go switches your starter code
   ./smith open       open your dashboard website
 """
 import json
@@ -405,8 +406,53 @@ def cmd_setup(args):
     print("Next:  " + cyan("./smith stage") + "  to read stage 1.")
 
 
+LANGS = {"python": "Python 3", "c": "C (with GNU readline)", "go": "Go", "rust": "Rust",
+         "javascript": "JavaScript (Node.js)"}
+
+
+def current_language():
+    exts = {"main.py": "python", "main.c": "c", "main.go": "go", "Cargo.toml": "rust", "main.js": "javascript"}
+    app = os.path.join(ROOT, "app")
+    found = [lang for f, lang in exts.items() if os.path.exists(os.path.join(app, f))]
+    return found[0] if len(found) == 1 else None
+
+
+def cmd_language(args):
+    cur = current_language()
+    if not args:
+        print(bold("Languages") + dim("  (switch with ./smith language NAME)"))
+        for k, v in LANGS.items():
+            print(f"  {green('➜') if k == cur else ' '} {k:<11} {v}")
+        return
+    lang = args[0].lower()
+    if lang not in LANGS:
+        die(f"unknown language {lang!r}. Choose from: {', '.join(LANGS)}")
+    if lang == cur:
+        print(f"You're already using {LANGS[lang]}.")
+        return
+    src = os.path.join(ROOT, "starters", lang)
+    app = os.path.join(ROOT, "app")
+    if os.path.isdir(app) and os.listdir(app):
+        backup = os.path.join(STATE, "backup-" + time.strftime("%Y%m%d-%H%M%S"))
+        os.makedirs(backup, exist_ok=True)
+        shutil.move(app, os.path.join(backup, "app"))
+        for f in ("your_shell.sh", "build.sh"):
+            if os.path.exists(os.path.join(ROOT, f)):
+                shutil.copy2(os.path.join(ROOT, f), backup)
+        print(dim(f"Your previous code is saved in {os.path.relpath(backup, ROOT)}/"))
+    shutil.copytree(os.path.join(src, "app"), app)
+    shutil.copy2(os.path.join(src, "your_shell.sh"), os.path.join(ROOT, "your_shell.sh"))
+    build = os.path.join(ROOT, "build.sh")
+    if os.path.exists(os.path.join(src, "build.sh")):
+        shutil.copy2(os.path.join(src, "build.sh"), build)
+    elif os.path.exists(build):
+        os.remove(build)
+    print(green("✔") + f" Switched to {LANGS[lang]}. Your code goes in app/. Start with ./smith stage")
+
+
 COMMANDS = {"test": cmd_test, "submit": cmd_submit, "stage": cmd_stage, "stages": cmd_stages,
-            "status": cmd_status, "open": cmd_open, "setup": cmd_setup}
+            "status": cmd_status, "open": cmd_open, "setup": cmd_setup,
+            "language": cmd_language}
 
 
 def main():
