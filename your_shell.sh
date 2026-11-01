@@ -1,3 +1,3 @@
 #!/bin/sh
-# The tester runs this file to start your shell (build.sh has already compiled it).
-exec "$(dirname "$0")/.smith/build/shell" "$@"
+# The tester runs this file to start your shell.
+exec python3 -u "$(dirname "$0")/app/main.py" "$@"
