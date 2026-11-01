@@ -53,7 +53,9 @@
       if (!ch) chapters.push((ch = { name: s.chapter, items: [] }));
       ch.items.push(s);
     }
-    $("side").innerHTML = chapters.map((ch) => {
+    const startLink = `<a class="startlink${selSlug === "__start" ? " sel" : ""}" href="#/start">` +
+      `<span class="dot">?</span><span>Start here: setup guide</span></a>`;
+    $("side").innerHTML = startLink + chapters.map((ch) => {
       const done = ch.items.filter((s) => statusOf(s) === "passed").length;
       return `<div class="chapter"><h4><span>${esc(ch.name)}</span><span>${done}/${ch.items.length}</span></h4><ol>` +
         ch.items.map((s) => {
@@ -63,6 +65,7 @@
             `<span class="n">${s.number}</span><span class="dot">${glyph}</span><span>${tt(s.title)}</span></a></li>`;
         }).join("") + "</ol></div>";
     }).join("");
+    document.querySelector(".toplink")?.classList.toggle("on", selSlug === "__start");
   }
 
   function renderHome() {
@@ -78,6 +81,7 @@
       ${results?.build_error ? `<div class="note err"><strong>The last submission didn't compile</strong><pre>${esc(results.build_error)}</pre></div>` : ""}
       ${cur ? `<p><strong>Up next:</strong> stage ${cur.number} · ${tt(cur.title)}</p>
       <a class="cta" href="#/stage/${cur.slug}">Open stage ${cur.number} →</a>` : ""}
+      ${!passed ? `<a class="cta ghost" href="#/start">New here? Setup guide</a>` : ""}
     </div>`;
     renderSide(null);
     $("logpanel").hidden = true;
@@ -113,10 +117,22 @@
     window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
   }
 
+  function renderGuide(tab) {
+    window.ShellsmithGuide.render($("stage"), { tab, repo, current: currentStage() });
+    renderSide("__start");
+    $("logpanel").hidden = true;
+    document.querySelector(".how").hidden = true;
+    window.scrollTo({ top: 0 });
+  }
+
   function route() {
-    const m = location.hash.match(/^#\/stage\/([\w-]+)/);
+    const h = location.hash;
     renderHeader();
-    m ? renderStage(m[1]) : renderHome();
+    document.querySelector(".how").hidden = false;
+    let m;
+    if ((m = h.match(/^#\/start(?:\/(\w+))?/))) return renderGuide(m[1]);
+    if ((m = h.match(/^#\/stage\/([\w-]+)/))) return renderStage(m[1]);
+    renderHome();
   }
 
   // ---------------------------------------------------------------- live GitHub status

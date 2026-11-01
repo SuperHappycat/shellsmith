@@ -21,6 +21,11 @@ your progress dashboard (GitHub Pages) updates.
 
 ## 1. One-time setup (≈3 minutes)
 
+> **Easiest:** open your dashboard and click **Start here**. It walks you through three ways
+> to work, with copy buttons: **Terminal** (macOS / Windows via WSL / Linux),
+> **Desktop apps** (GitHub Desktop + VS Code, no terminal needed) and
+> **Browser** (GitHub Codespaces, nothing to install).
+
 Requirements: `git`, `python3` (3.9+), and the [GitHub CLI](https://cli.github.com).
 
 ```sh

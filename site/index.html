@@ -16,6 +16,7 @@
     <span class="logo">$_</span>
     <span class="brand-text">Shell<b>smith</b></span>
   </a>
+  <a class="toplink" href="#/start">Start here</a>
   <div class="repo" id="repo"></div>
   <div class="meter" id="meter" aria-label="progress">
     <div class="meter-bar"><span id="meter-fill"></span></div>
@@ -40,6 +41,7 @@
         <div><code>./smith test</code><span>run the tests on your computer</span></div>
         <div><code>./smith submit</code><span>push to GitHub, stream the official result back</span></div>
       </div>
+      <p class="how-alt">No terminal? Commit and push with GitHub Desktop instead. See the <a href="#/start/desktop">setup guide</a>.</p>
     </section>
     <section class="panel" id="runs-panel" hidden>
       <h3>Recent submissions</h3>
@@ -48,6 +50,7 @@
   </section>
 </main>
 <footer class="foot">Shellsmith · a build-your-own-shell course · <span id="updated"></span></footer>
+<script src="guide.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

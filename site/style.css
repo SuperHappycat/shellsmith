@@ -125,3 +125,64 @@ code { font-family: var(--mono); font-size: .88em; background: var(--bg-2); padd
   .stage { padding: 22px 18px; }
   .live { padding: 9px 16px; }
 }
+
+/* ---------- start-here guide */
+.toplink { font: 600 14px var(--sans); text-decoration: none; padding: 6px 12px; border-radius: 9px; border: 1px solid var(--line); white-space: nowrap; }
+.toplink:hover, .toplink.on { border-color: var(--ember); color: var(--ember); }
+.startlink { display: flex; gap: 10px; align-items: center; padding: 8px 10px; margin-bottom: 18px; border-radius: 10px; text-decoration: none;
+  font-weight: 600; font-size: 15px; background: var(--ember-soft); color: var(--ink); }
+.startlink .dot { background: var(--ember); border-color: var(--ember); color: #171310; }
+.startlink.sel { box-shadow: inset 0 0 0 1.5px var(--ember); }
+.cta.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); margin-left: 8px; }
+.cta.ghost:hover { border-color: var(--ember); }
+.how-alt { margin: 12px 0 0; font-size: 14px; color: var(--ink-2); }
+.lead { font-size: 17px; color: var(--ink-2); }
+.gtabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0 8px; }
+.gtabs a { display: flex; flex-direction: column; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); text-decoration: none; background: var(--bg); }
+.gtabs a b { font-size: 16px; }
+.gtabs a span { font-size: 13px; color: var(--ink-3); }
+.gtabs a.on { border-color: var(--ember); background: var(--ember-soft); box-shadow: inset 0 0 0 1px var(--ember); }
+.gtabs a:not(.on):hover { border-color: var(--ink-3); }
+.ospick { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 18px 0 4px; font-size: 14px; color: var(--ink-2); }
+.ospick span { margin-right: 4px; }
+.ospick button { font: 600 13px var(--sans); padding: 5px 12px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+.ospick button.on { background: var(--ink); color: var(--card); border-color: var(--ink); }
+.gsteps { list-style: none; counter-reset: g; margin: 18px 0 0; padding: 0; }
+.gstep { counter-increment: g; position: relative; padding: 2px 0 22px 50px; border-left: 2px solid var(--line); margin-left: 15px; }
+.gstep:last-child { border-left-color: transparent; padding-bottom: 4px; }
+.gstep::before { content: counter(g); position: absolute; left: -16px; top: 0; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--card); border: 2px solid var(--ember); color: var(--ember); font: 700 14px var(--mono); display: grid; place-items: center; }
+.gstep h3 { margin: 2px 0 6px !important; font-size: 18px; }
+.gstep p { margin: 6px 0; }
+.opt { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); border: 1px solid var(--line); border-radius: 99px; padding: 1px 7px; margin-left: 6px; vertical-align: middle; }
+.codebox { position: relative; margin: 8px 0; }
+.codebox pre { margin: 0; padding-right: 76px !important; }
+.copy { position: absolute; top: 8px; right: 8px; font: 600 12px var(--sans); padding: 4px 10px; border-radius: 7px; border: 1px solid #3a3029;
+  background: #2a221c; color: #eadfd2; cursor: pointer; }
+.copy:hover { border-color: var(--ember); }
+.gnote { margin: 10px 0; padding: 10px 14px; border-radius: 10px; font-size: 14.5px; color: var(--ink-2); }
+.gnote.tip { background: var(--bg-2); }
+.gnote.info { background: transparent; border: 1px dashed var(--line); }
+.gnote summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+.gnote p { margin: 6px 0; }
+.appgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0; }
+.appcard { display: flex; flex-direction: column; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; background: var(--bg); }
+.appcard:hover { border-color: var(--ember); }
+.appcard span { font-size: 13px; color: var(--ink-3); }
+.btn { display: inline-block; background: var(--ink); color: var(--card); padding: 8px 14px; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 15px; }
+.btn:hover { background: var(--ember); color: #171310; }
+.flow { display: grid; gap: 6px; margin: 8px 0; }
+.flow span { padding: 8px 12px; border-radius: 9px; background: var(--bg); border: 1px solid var(--line); font-size: 15px; color: var(--ink-2); }
+.flow span::before { content: "→ "; color: var(--ember); font-weight: 700; }
+.ghead { margin-top: 30px !important; }
+.cheat { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.cheat td { padding: 7px 4px; border-top: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+.cheat td:first-child { white-space: nowrap; padding-right: 16px; }
+.gnext { margin-top: 26px; }
+@media (max-width: 820px) {
+  .gtabs { grid-template-columns: 1fr; }
+  .appgrid { grid-template-columns: 1fr; }
+  .gstep { padding-left: 32px; }
+  .cheat td:first-child { white-space: normal; }
+  .toplink { order: 2; }
+}
