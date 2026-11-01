@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shellsmith</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23e8743b'/><text x='6' y='23' font-family='monospace' font-size='18' font-weight='700' fill='%23171310'>$_</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#/">
+    <span class="logo">$_</span>
+    <span class="brand-text">Shell<b>smith</b></span>
+  </a>
+  <div class="repo" id="repo"></div>
+  <div class="meter" id="meter" aria-label="progress">
+    <div class="meter-bar"><span id="meter-fill"></span></div>
+    <span class="meter-text" id="meter-text">–</span>
+  </div>
+</header>
+
+<div class="live" id="live" hidden></div>
+
+<main class="layout">
+  <nav class="side" id="side" aria-label="Stages"></nav>
+  <section class="main">
+    <article class="stage" id="stage"></article>
+    <section class="panel" id="logpanel" hidden>
+      <div class="panel-head"><span class="dots"><i></i><i></i><i></i></span><span id="logtitle">Test log</span></div>
+      <pre class="term" id="log"></pre>
+    </section>
+    <section class="panel how">
+      <h3>Work loop</h3>
+      <div class="cmds">
+        <div><code>./smith stage</code><span>read the current stage in your terminal</span></div>
+        <div><code>./smith test</code><span>run the tests on your computer</span></div>
+        <div><code>./smith submit</code><span>push to GitHub, stream the official result back</span></div>
+      </div>
+    </section>
+    <section class="panel" id="runs-panel" hidden>
+      <h3>Recent submissions</h3>
+      <ol class="runs" id="runs"></ol>
+    </section>
+  </section>
+</main>
+<footer class="foot">Shellsmith · a build-your-own-shell course · <span id="updated"></span></footer>
+<script src="app.js"></script>
+</body>
+</html>
