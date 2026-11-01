@@ -346,21 +346,54 @@ def _finish_line(ctx, sh, want_last):
     ctx.log.ok("Completed command ran correctly")
 
 
+def path_executables(path):
+    names = set()
+    for d in path.split(":"):
+        try:
+            for f in os.listdir(d):
+                if os.access(os.path.join(d, f), os.X_OK):
+                    names.add(f)
+        except OSError:
+            pass
+    return names
+
+
+def unique_prefix(word, others):
+    """Shortest prefix (2+ chars, shorter than word) that only `word` starts with."""
+    for n in range(2, len(word)):
+        if not any(o != word and o.startswith(word[:n]) for o in others):
+            return word[:n]
+    return None
+
+
 def t_complete_builtin(ctx):
+    # Real machines have thousands of programs on PATH (CI runners especially), so only
+    # test builtins whose prefix is unambiguous on *this* machine.
+    others = path_executables(ctx.env["PATH"]) | {"echo", "exit", "type"}
+    picks = [(b, unique_prefix(b, others)) for b in ("echo", "exit", "type")]
+    picks = [(b, p) for b, p in picks if p]
+    if not picks:
+        raise StageFailed("Tester problem: every builtin prefix is ambiguous on this machine's PATH")
     sh = ctx.shell()
-    sh.type_keys("ech\t", "ech<TAB>")
-    line = _typed(sh)
-    if not line.endswith("echo "):
-        raise StageFailed(f'Expected the line to become "echo " after TAB, screen shows {line!r}')
-    ctx.log.ok('Line completed to "echo "')
-    word = w()
-    sh.type_keys(word)
-    _finish_line(ctx, sh, word)
-    sh.type_keys("exi\t", "exi<TAB>")
-    line = _typed(sh)
-    if not line.endswith("exit "):
-        raise StageFailed(f'Expected "exit " after TAB, screen shows {line!r}')
-    ctx.log.ok('Line completed to "exit "')
+    for builtin_name, prefix in picks:
+        sh.type_keys(prefix + "\t", f"{prefix}<TAB>")
+        line = _typed(sh)
+        if not line.endswith(builtin_name + " "):
+            raise StageFailed(f'Expected the line to become "{builtin_name} " after TAB, screen shows {line!r}')
+        ctx.log.ok(f'Line completed to "{builtin_name} "')
+        if builtin_name == "exit":
+            sh.type_keys("0\n", "0<ENTER>")
+            if sh.expect_exit() != 0:
+                raise StageFailed("Expected the completed exit command to exit with status 0")
+            ctx.log.ok("Completed exit command ran")
+            sh = ctx.shell()
+        elif builtin_name == "type":
+            sh.type_keys("type")
+            _finish_line(ctx, sh, "type is a shell builtin")
+        else:
+            word = w()
+            sh.type_keys(word)
+            _finish_line(ctx, sh, word)
 
 
 def t_complete_exe(ctx):
